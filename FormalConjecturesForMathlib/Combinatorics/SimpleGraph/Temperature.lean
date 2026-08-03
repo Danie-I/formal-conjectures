@@ -35,4 +35,12 @@ noncomputable def MaxTemp (G : SimpleGraph α) [DecidableRel G.Adj] [Fintype α]
   let temps := Finset.univ.image (temp_v G)
   temps.max' (Finset.image_nonempty.mpr Finset.univ_nonempty)
 
+/-- The maximum graph temperature of `G`. -/
+noncomputable def maxGraphTemperature (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  if h : Nonempty α then
+    letI := h
+    G.MaxTemp
+  else
+    0
+
 end SimpleGraph

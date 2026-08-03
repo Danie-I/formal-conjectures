@@ -19,10 +19,12 @@ public import Mathlib.Combinatorics.SimpleGraph.Clique
 public import Mathlib.Combinatorics.SimpleGraph.Finite
 public import Mathlib.Data.ENat.Lattice
 public import Mathlib.Data.Multiset.Sort
+public import Mathlib.Data.Nat.Dist
 public import Mathlib.Data.Real.Basic
 public import Mathlib.Data.Real.Sqrt
 public import Mathlib.Data.Set.Card
 public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 @[expose] public section
 
@@ -101,5 +103,122 @@ noncomputable def degreeL2Norm (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :
 /-- The number of vertices of degree k in `G`. -/
 def countDegreeK (G : SimpleGraph α) [DecidableRel G.Adj] (k : ℕ) : ℕ :=
   (Finset.univ.filter (fun v => G.degree v = k)).card
+
+/-- The first Zagreb index of `G`. -/
+def firstZagrebIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ v, (G.degree v) ^ 2
+
+/-- The second Zagreb index of `G`. -/
+noncomputable def secondZagrebIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => G.degree u * G.degree v, by simp [mul_comm]⟩
+
+/-- The first Zagreb coindex of `G`. -/
+noncomputable def firstZagrebCoindex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ (compl G).edgeFinset,
+    e.lift ⟨fun u v => G.degree u + G.degree v, by simp [add_comm]⟩
+
+/-- The second Zagreb coindex of `G`. -/
+noncomputable def secondZagrebCoindex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ (compl G).edgeFinset,
+    e.lift ⟨fun u v => G.degree u * G.degree v, by simp [mul_comm]⟩
+
+/-- The forgotten index of `G`. -/
+def forgottenIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ v, (G.degree v) ^ 3
+
+/-- The Albertson index of `G`. -/
+noncomputable def albertsonIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => Nat.dist (G.degree u) (G.degree v), by simp [Nat.dist_comm]⟩
+
+/-- The Platt index of `G`. -/
+noncomputable def plattIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => G.degree u + G.degree v - 2, by simp [add_comm]⟩
+
+/-- The Narumi-Katayama index of `G`. -/
+def narumiKatayamaIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∏ v, G.degree v
+
+/-- The first hyper-Zagreb index of `G`. -/
+noncomputable def firstHyperZagrebIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (G.degree u + G.degree v) ^ 2, by simp [add_comm]⟩
+
+/-- The second hyper-Zagreb index of `G`. -/
+noncomputable def secondHyperZagrebIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (G.degree u * G.degree v) ^ 2, by simp [mul_comm]⟩
+
+/-- The harmonic index of `G`. -/
+noncomputable def harmonicIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℚ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (2 : ℚ) / ((G.degree u : ℚ) + (G.degree v : ℚ)), by simp [add_comm]⟩
+
+/-- The inverse sum indeg index of `G`. -/
+noncomputable def inverseSumIndegIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℚ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => ((G.degree u : ℚ) * (G.degree v : ℚ)) / ((G.degree u : ℚ) + (G.degree v : ℚ)),
+      by simp [mul_comm, add_comm]⟩
+
+/-- The symmetric division deg index of `G`. -/
+noncomputable def symmetricDivisionDegIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℚ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (G.degree u : ℚ) / (G.degree v : ℚ) + (G.degree v : ℚ) / (G.degree u : ℚ),
+      by simp [add_comm]⟩
+
+/-- The inverse degree index of `G`. -/
+noncomputable def inverseDegreeIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℚ :=
+  ∑ v ∈ Finset.univ.filter (fun v => G.degree v > 0), 1 / (G.degree v : ℚ)
+
+/-- The augmented Zagreb index of `G`. -/
+noncomputable def augmentedZagrebIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℚ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (((G.degree u : ℚ) * (G.degree v : ℚ)) / ((G.degree u : ℚ) + (G.degree v : ℚ) - 2)) ^ 3,
+      by simp [mul_comm, add_comm]⟩
+
+/-- The Randić index of `G`. -/
+noncomputable def randicIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => 1 / Real.sqrt ((G.degree u : ℝ) * (G.degree v : ℝ)),
+      by simp [mul_comm]⟩
+
+/-- The Sombor index of `G`. -/
+noncomputable def somborIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => Real.sqrt ((G.degree u : ℝ) ^ 2 + (G.degree v : ℝ) ^ 2),
+      by simp [add_comm]⟩
+
+/-- The atom-bond connectivity (ABC) index of `G`. -/
+noncomputable def abcIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => Real.sqrt (((G.degree u : ℝ) + (G.degree v : ℝ) - 2) / ((G.degree u : ℝ) * (G.degree v : ℝ))),
+      by simp [mul_comm, add_comm]⟩
+
+/-- The geometric-arithmetic (GA) index of `G`. -/
+noncomputable def gaIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => (2 * Real.sqrt ((G.degree u : ℝ) * (G.degree v : ℝ))) / ((G.degree u : ℝ) + (G.degree v : ℝ)),
+      by simp [mul_comm, add_comm]⟩
+
+/-- The reciprocal Randić index of `G`. -/
+noncomputable def reciprocalRandicIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => Real.sqrt ((G.degree u : ℝ) * (G.degree v : ℝ)),
+      by simp [mul_comm]⟩
+
+/-- The general sum connectivity index of `G` with exponent `r` (default 0.5). -/
+noncomputable def generalSumConnectivityIndex (G : SimpleGraph α) [DecidableRel G.Adj] (r : ℝ := 0.5) : ℝ :=
+  ∑ e ∈ G.edgeFinset,
+    e.lift ⟨fun u v => ((G.degree u : ℝ) + (G.degree v : ℝ)) ^ r, by simp [add_comm]⟩
+
+/-- The F-index of `G` (alias for forgotten index). -/
+def fIndex (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ := forgottenIndex G
+
+/-- The second largest degree in `G`. -/
+noncomputable def secondLargestDegree (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
+  let seq := degreeSequence G
+  if seq.length < 2 then 0 else (seq[seq.length - 2]?).getD 0
 
 end SimpleGraph

@@ -34,8 +34,10 @@ def computable_wiener (G : SimpleGraph α) [DecidableRel G.Adj] : ℕ :=
 
 
 -- Helper: ∑∑ f = 2 * ∑ Sym2 (lift f) when f symmetric with f(a,a) = 0
-private lemma double_sum_eq_two_mul_sym2_sum {f : α → α → ℕ}
+public lemma double_sum_eq_two_mul_sym2_sum {f : α → α → ℕ}
     (hf : ∀ a b, f a b = f b a) (hd : ∀ a, f a a = 0) :
+
+
     ∑ u : α, ∑ v : α, f u v =
     2 * ∑ x : Sym2 α, Sym2.lift ⟨f, fun a b => hf a b⟩ x := by
   -- Use fiberwise decomposition over Sym2 quotient map

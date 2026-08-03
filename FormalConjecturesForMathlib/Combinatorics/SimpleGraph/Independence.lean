@@ -98,5 +98,9 @@ noncomputable def minLocalIndependence (G : SimpleGraph α) : ℕ :=
   let locals := Finset.univ.image (fun v => (G.induce (G.neighborSet v)).indepNum)
   (locals.min).getD 0
 
+/-- The α-core of G: the set of vertices whose removal strictly decreases the
+independence number. A vertex v is in the α-core if α(G - v) < α(G). -/
+noncomputable def alphaCore (G : SimpleGraph α) : Finset α :=
+  Finset.univ.filter (fun v => (G.induce (Set.univ \ {v})).indepNum < G.indepNum)
 
 end SimpleGraph

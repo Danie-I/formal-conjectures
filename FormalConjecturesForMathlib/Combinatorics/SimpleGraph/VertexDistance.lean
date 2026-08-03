@@ -308,34 +308,28 @@ theorem avg_dist_eq_computable (G : SimpleGraph α) [DecidableRel G.Adj] :
   · simp
 
 
-/-- The set of pairs of distinct vertices with even distance > 0. -/
-noncomputable def evenDistancePairs (G : SimpleGraph α) : Finset (α × α) :=
-  Finset.univ.filter (fun p => G.dist p.1 p.2 % 2 = 0 ∧ G.dist p.1 p.2 > 0)
+/-- The number of vertices at an even shortest-path distance from `v` (including `v` itself). -/
+noncomputable def evenDistanceCount (G : SimpleGraph α) (v : α) : ℕ :=
+  (Finset.univ.filter (fun u => G.dist v u % 2 = 0)).card
 
-/-- Minimum even distance between distinct vertices in `G`.
-    Only positive even distances are considered. Returns 0 if no such distance exists. -/
+/-- The list of even-distance counts for each vertex in `G`. -/
+noncomputable def evenDistanceCounts (G : SimpleGraph α) : List ℕ :=
+  Finset.univ.toList.map (fun v => G.evenDistanceCount v)
+
+/-- Minimum number of vertices at an even distance from a vertex in `G`.
+    Returns 0 if the graph has no vertices. -/
 noncomputable def minEvenDistance (G : SimpleGraph α) : ℕ :=
-  letI pairs := G.evenDistancePairs
-  if h : pairs.Nonempty then
-    letI dists := pairs.image (fun p => G.dist p.1 p.2)
-    (dists.min' (Finset.Nonempty.image h _))
-  else 0
+  (G.evenDistanceCounts.min?).getD 0
 
-/-- Maximum even distance between distinct vertices in `G`.
-    Only positive even distances are considered. Returns 0 if no such distance exists. -/
+/-- Maximum number of vertices at an even distance from a vertex in `G`.
+    Returns 0 if the graph has no vertices. -/
 noncomputable def maxEvenDistance (G : SimpleGraph α) : ℕ :=
-  letI pairs := G.evenDistancePairs
-  if h : pairs.Nonempty then
-    letI dists := pairs.image (fun p => G.dist p.1 p.2)
-    (dists.max' (Finset.Nonempty.image h _))
-  else 0
+  (G.evenDistanceCounts.max?).getD 0
 
-/-- Average even distance between distinct vertices in `G`.
-    Only positive even distances are considered. Returns 0 if no such distance exists. -/
+/-- Average number of vertices at an even distance from a vertex in `G`.
+    Returns 0 if the graph has no vertices. -/
 noncomputable def averageEvenDistance (G : SimpleGraph α) : ℚ :=
-  letI pairs := G.evenDistancePairs
-  if pairs.card > 0 then
-    (∑ p ∈ pairs, (G.dist p.1 p.2 : ℚ)) / (pairs.card : ℚ)
-  else 0
+  if Fintype.card α = 0 then 0 else
+    (∑ v, (G.evenDistanceCount v : ℚ)) / (Fintype.card α : ℚ)
 
 end SimpleGraph
